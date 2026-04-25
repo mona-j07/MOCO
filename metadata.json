@@ -1,0 +1,6 @@
+{
+  "name": "moecho",
+  "description": "An intelligent AI companion and personal operating system with persistent memory, finance tracking, and creative studio tools.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": []
+}
