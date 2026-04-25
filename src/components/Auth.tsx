@@ -7,6 +7,8 @@ import { LogIn } from 'lucide-react';
 import { motion } from 'motion/react';
 
 export default function Auth() {
+  const { setGuestUser } = useApp();
+  
   const handleLogin = async () => {
     const provider = new GoogleAuthProvider();
     try {
@@ -54,10 +56,16 @@ export default function Auth() {
             </p>
             <Button 
               onClick={handleLogin} 
-              className="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-6 text-lg font-medium transition-all hover:scale-[1.02] active:scale-[0.98]"
+              className="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-6 text-lg font-medium transition-all hover:scale-[1.02] active:scale-[0.98] mb-4"
             >
               Initialize with Google
             </Button>
+            <button 
+              onClick={() => setGuestUser("Explorer")}
+              className="text-sm text-[#94A3B8] hover:text-white transition-colors"
+            >
+              Or enter as Guest
+            </button>
           </CardContent>
         </Card>
       </motion.div>
