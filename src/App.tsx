@@ -7,6 +7,7 @@ import CEOInsights from './components/CEOInsights.tsx';
 import PersonalDashboard from './components/PersonalDashboard.tsx';
 import FinanceModule from './components/FinanceModule.tsx';
 import AlarmDashboard from './components/AlarmDashboard.tsx';
+import TaskBoard from './components/TaskBoard.tsx';
 import Auth from './components/Auth.tsx';
 import { Toaster } from './components/ui/sonner.tsx';
 import { cn } from './lib/utils.ts';
@@ -38,7 +39,7 @@ function AppContent() {
           <div className="flex items-center gap-4">
             <span className="text-[10px] font-bold text-text-secondary uppercase tracking-[0.2em]">Active Mode</span>
             <div className="flex bg-surface rounded-full p-1 border border-border-ui/50">
-              {["AUTHOR", "DEVELOPER", "CEO", "PERSONAL", "FINANCE", "ALARM"].map((m) => (
+              {["AUTHOR", "DEVELOPER", "TASKS", "CEO", "PERSONAL", "FINANCE", "ALARM"].map((m) => (
                 <button
                   key={m}
                   onClick={() => setMode(m as any)}
@@ -70,6 +71,7 @@ function AppContent() {
           {/* State-based routing for modes */}
           {mode === "AUTHOR" && <WritingStudio />}
           {mode === "DEVELOPER" && <LearningDashboard />}
+          {mode === "TASKS" && <TaskBoard />}
           {mode === "CEO" && <CEOInsights />}
           {mode === "PERSONAL" && <PersonalDashboard />}
           {mode === "FINANCE" && <FinanceModule />}

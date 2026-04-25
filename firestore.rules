@@ -109,5 +109,35 @@ service cloud.firestore {
                data.type in ['stock', 'crypto', 'savings'];
       }
     }
+
+    // 8. General Tasks (Protocols)
+    match /tasks/{taskId} {
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow get: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && incoming().userId == request.auth.uid && isValidProtocol(incoming());
+      allow update: if isSignedIn() && resource.data.userId == request.auth.uid && (
+        (incoming().diff(existing()).affectedKeys().hasOnly(['status'])) ||
+        (incoming().userId == request.auth.uid && isValidProtocol(incoming()))
+      );
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+
+      function isValidProtocol(data) {
+        return data.userId == request.auth.uid &&
+               data.title is string && data.title.size() <= 200 &&
+               data.status in ['todo', 'done'] &&
+               data.createdAt == request.time;
+      }
+    }
+
+    // 9. CEO Training & Insights
+    match /ceo_training/{id} {
+      allow list, get: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && incoming().userId == request.auth.uid;
+    }
+
+    match /global_insights/{id} {
+      allow list, get: if isSignedIn();
+      allow write: if false; // Only system can write
+    }
   }
 }

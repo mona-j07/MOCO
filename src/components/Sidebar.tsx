@@ -10,7 +10,8 @@ import {
   LogOut, 
   AlarmClock,
   LayoutDashboard,
-  Wallet
+  Wallet,
+  ClipboardList
 } from 'lucide-react';
 import { Button } from './ui/button.tsx';
 import { auth } from '../lib/firebase.ts';
@@ -19,6 +20,7 @@ import SmartAlarm from './SmartAlarm.tsx';
 
 const modes: { id: PAOSMode; icon: any; label: string; color: string }[] = [
   { id: 'PERSONAL', icon: LayoutDashboard, label: 'Dashboard', color: 'text-sky-400' },
+  { id: 'TASKS', icon: ClipboardList, label: 'Registry', color: 'text-indigo-400' },
   { id: 'FINANCE', icon: Wallet, label: 'Finance', color: 'text-emerald-400' },
   { id: 'AUTHOR', icon: PenTool, label: 'Writing', color: 'text-emerald-400' },
   { id: 'DEVELOPER', icon: Code2, label: 'Learning', color: 'text-indigo-400' },

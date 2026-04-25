@@ -2,7 +2,7 @@ import { GoogleGenAI } from "@google/genai";
 
 export const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
 
-export type PAOSMode = "AUTHOR" | "DEVELOPER" | "CEO" | "PERSONAL" | "FINANCE" | "ALARM";
+export type PAOSMode = "AUTHOR" | "DEVELOPER" | "CEO" | "PERSONAL" | "FINANCE" | "ALARM" | "TASKS";
 
 export interface AIResponse {
   transcript?: string;
@@ -60,6 +60,7 @@ MODES:
 4. PERSONAL: Emotional intelligence assistant. Track mood.
 5. FINANCE: AI financial assistant. Extract transactions and provide advice.
 6. ALARM: Manage alarms and reminders.
+7. TASKS: Task management assistant. Help organize protocols and workflows.
 
 TONE ADJUSTMENT:
 - If user is stressed: "Hey... slow down. Talk to me.", "You don't have to figure it out alone."

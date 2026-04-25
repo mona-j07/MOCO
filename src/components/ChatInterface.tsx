@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, FormEvent } from 'react';
 import { useApp } from '../context/AppContext.tsx';
 import { Mic, Send, X, MessageSquare, Loader2 } from 'lucide-react';
-import { processInput } from '../lib/gemini.ts';
+import { processInput, AIResponse } from '../lib/gemini.ts';
 import { db } from '../lib/firebase.ts';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'motion/react';
@@ -14,7 +14,7 @@ export default function ChatInterface() {
   const [input, setInput] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [isListening, setIsListening] = useState(false);
-  const [messages, setMessages] = useState<{ role: 'user' | 'ai'; text: string }[]>([]);
+  const [messages, setMessages] = useState<{ role: 'user' | 'ai'; text: string; data?: AIResponse }[]>([]);
   const { mode, user } = useApp();
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -29,6 +29,7 @@ export default function ChatInterface() {
     if (!input.trim() || isProcessing) return;
 
     const userText = input;
+    const startTime = Date.now();
     setInput('');
     setMessages(prev => [...prev, { role: 'user', text: userText }]);
     setIsProcessing(true);
@@ -37,9 +38,15 @@ export default function ChatInterface() {
       const aiResponse = await processInput(userText, mode, user?.displayName || undefined);
       const textToShow = aiResponse.content || aiResponse.improved || (aiResponse as any).improvedText || "Processed.";
       
-      setMessages(prev => [...prev, { role: 'ai', text: textToShow }]);
+      // Ensure minimum loading time of 1s to prevent flickering
+      const elapsedTime = Date.now() - startTime;
+      if (elapsedTime < 1000) {
+        await new Promise(resolve => setTimeout(resolve, 1000 - elapsedTime));
+      }
 
-      // PERSISTENCE LOGIC
+      setMessages(prev => [...prev, { role: 'ai', text: textToShow, data: aiResponse }]);
+
+      // PERSISTENCE LOGIC (keep existing logic)
       if (mode === 'AUTHOR') {
         await addDoc(collection(db, 'writing'), {
           userId: user?.uid,
@@ -155,12 +162,58 @@ export default function ChatInterface() {
                 )}
                 {messages.map((m, i) => (
                   <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`max-w-[85%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed shadow-sm ${
+                    <div className={`max-w-[90%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed shadow-sm space-y-3 ${
                       m.role === 'user' 
                         ? 'bg-indigo-paos text-white rounded-tr-none' 
                         : 'bg-background text-text-primary rounded-tl-none border border-border-ui'
                     }`}>
-                      {m.text}
+                      <div>{m.text}</div>
+                      
+                      {m.role === 'ai' && m.data && (
+                        <div className="space-y-3 pt-2">
+                          {/* Finance Data */}
+                          {m.data.financeData && (
+                            <div className="p-3 bg-surface border border-emerald-500/20 rounded-xl space-y-1">
+                              <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider text-emerald-500">
+                                <span>{m.data.financeData.type} Recorded</span>
+                                <span>₹{m.data.financeData.amount}</span>
+                              </div>
+                              <div className="text-xs text-text-secondary">
+                                {m.data.financeData.category} • {m.data.financeData.note}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Writing Studio */}
+                          {m.data.improved && (
+                            <div className="p-3 bg-indigo-paos/10 border border-indigo-paos/20 rounded-xl space-y-2">
+                              <div className="text-[10px] font-bold uppercase tracking-wider text-indigo-paos">Refined Thought</div>
+                              <div className="text-xs italic text-text-primary leading-relaxed">
+                                "{m.data.improved}"
+                              </div>
+                            </div>
+                          )}
+
+                          {/* CEO Training */}
+                          {(m.data.concept || m.data.task) && (
+                            <div className="space-y-2">
+                              {m.data.concept && (
+                                <div className="p-3 bg-amber-500/5 border border-amber-500/20 rounded-xl">
+                                  <div className="text-[10px] font-bold uppercase tracking-wider text-amber-500 mb-1">Executive Concept</div>
+                                  <div className="text-xs font-bold text-white mb-1">{m.data.concept}</div>
+                                  {m.data.example && <div className="text-[10px] text-text-secondary">Ex: {m.data.example}</div>}
+                                </div>
+                              )}
+                              {m.data.task && (
+                                <div className="p-3 bg-emerald-500/5 border border-emerald-500/20 rounded-xl">
+                                  <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-500 mb-1">Strategic Task</div>
+                                  <div className="text-xs text-text-primary">{m.data.task}</div>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}

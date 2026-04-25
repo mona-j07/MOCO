@@ -98,12 +98,68 @@
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["userId", "assetName", "amount", "type"]
+    },
+    "Task": {
+      "title": "Protocol Task",
+      "description": "General tasks and workflow protocols",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "status": { "type": "string", "enum": ["todo", "done"] },
+        "dueDate": { "type": "string", "format": "date" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "title", "status", "createdAt"]
+    },
+    "CEOTraining": {
+      "title": "CEO Training",
+      "description": "Strategic training content captured from Jay",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "content": { "type": "string" },
+        "concept": { "type": "string" },
+        "example": { "type": "string" },
+        "task": { "type": "string" },
+        "quiz": { "type": "array" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "content", "createdAt"]
+    },
+    "GlobalInsight": {
+      "title": "Global Insight",
+      "description": "System-generated global market insights",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "summary": { "type": "string" },
+        "insight": { "type": "string" },
+        "risk": { "type": "string" },
+        "opportunity": { "type": "string" },
+        "source": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "summary", "createdAt"]
     }
   },
   "firestore": {
     "users/{userId}": {
       "schema": "User",
       "description": "Individual user profiles"
+    },
+    "tasks/{taskId}": {
+      "schema": "Task",
+      "description": "General user tasks"
+    },
+    "ceo_training/{trainingId}": {
+      "schema": "CEOTraining",
+      "description": "Personalized CEO training history"
+    },
+    "global_insights/{insightId}": {
+      "schema": "GlobalInsight",
+      "description": "Daily global market snapshots"
     },
     "writing/{entryId}": {
       "schema": "WritingEntry",
