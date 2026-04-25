@@ -111,6 +111,10 @@ export default function ChatInterface() {
         const transcript = event.results[0][0].transcript;
         setInput(transcript);
         setIsListening(false);
+        // Auto-submit after small delay
+        setTimeout(() => {
+          document.getElementById('chat-submit-btn')?.click();
+        }, 300);
       };
       recognition.onerror = () => setIsListening(false);
       recognition.onend = () => setIsListening(false);
@@ -247,7 +251,7 @@ export default function ChatInterface() {
                     <Mic className="w-5 h-5" />
                   </button>
                 </div>
-                <Button type="submit" size="icon" className="h-11 w-11 rounded-2xl bg-indigo-paos hover:bg-indigo-paos/90 text-white shadow-lg shadow-indigo-paos/20">
+                <Button id="chat-submit-btn" type="submit" size="icon" className="h-11 w-11 rounded-2xl bg-indigo-paos hover:bg-indigo-paos/90 text-white shadow-lg shadow-indigo-paos/20">
                   <Send className="w-4 h-4 shadow-sm" />
                 </Button>
               </form>

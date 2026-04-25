@@ -93,7 +93,7 @@ function getAI() {
 
 export async function processInput(input: string, mode: PAOSMode, userName?: string): Promise<AIResponse> {
   const response = await getAI().models.generateContent({
-    model: "gemini-2.0-flash",
+    model: "gemini-1.5-flash",
     contents: [{ role: "user", parts: [{ text: input }] }],
     config: {
       systemInstruction: `${SYSTEM_PROMPT}\nCurrent Mode: ${mode}${userName ? `\nUser Name: ${userName}` : ''}`,
@@ -117,7 +117,7 @@ export async function processInput(input: string, mode: PAOSMode, userName?: str
 
 export async function analyzeMood(text: string): Promise<string> {
   const response = await getAI().models.generateContent({
-    model: "gemini-2.0-flash-lite",
+    model: "gemini-1.5-flash",
     contents: [{ role: "user", parts: [{ text: `Analyze the mood of the following text and return a single emoji and a one-word description: "${text}"` }] }],
     config: {
       temperature: 0.5,
