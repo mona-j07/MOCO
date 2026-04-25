@@ -1,4 +1,5 @@
 import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { useApp } from '../context/AppContext.tsx';
 import { auth, db } from '../lib/firebase.ts';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { Button } from './ui/button.tsx';
