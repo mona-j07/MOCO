@@ -44,7 +44,7 @@ async function startServer() {
     });
   }
 
-  const finalPort = process.env.PORT || port;
+  const finalPort = Number(process.env.PORT) || port;
   app.listen(finalPort, '0.0.0.0', () => {
     console.log(`moecho server running at http://localhost:${finalPort}`);
   });

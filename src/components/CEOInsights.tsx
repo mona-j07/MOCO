@@ -3,7 +3,6 @@ import { Card, CardHeader, CardTitle, CardContent } from './ui/card.tsx';
 import { Button } from './ui/button.tsx';
 import { useApp } from '../context/AppContext.tsx';
 import { db } from '../lib/firebase.ts';
-import { ai } from '../lib/gemini.ts';
 import { collection, query, where, orderBy, limit, onSnapshot } from 'firebase/firestore';
 import { 
   Briefcase, 
@@ -60,16 +59,17 @@ export default function CEOInsights() {
           ${newsData.news.map((n: any) => `- ${n.title}: ${n.summary}`).join('\n')}
         `;
 
-        const response = await ai.models.generateContent({
-          model: "gemini-3-flash-preview",
-          contents: [{ role: "user", parts: [{ text: prompt }] }],
-          config: {
-            responseMimeType: "application/json",
-            temperature: 0.2,
-          }
+        const response = await fetch('https://moco-backend.onrender.com/api/moco', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            input: prompt, 
+            mode: 'CEO' 
+          })
         });
 
-        const insights = JSON.parse(response.text);
+        const data = await response.json();
+        const insights = typeof data.content === 'string' ? JSON.parse(data.content) : data.content;
         setGlobalPulse(insights);
       }
     } catch (error) {
