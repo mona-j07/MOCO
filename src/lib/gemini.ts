@@ -1,6 +1,12 @@
 import { GoogleGenAI } from "@google/genai";
 
-export const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
+let _ai: GoogleGenAI | null = null;
+function getAI() {
+  if (!_ai) {
+    _ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
+  }
+  return _ai;
+}
 
 export type PAOSMode = "AUTHOR" | "DEVELOPER" | "CEO" | "PERSONAL" | "FINANCE" | "ALARM" | "TASKS";
 
@@ -87,7 +93,7 @@ export async function processInput(input: string, mode: PAOSMode, userName?: str
     throw new Error("Missing Gemini API Key");
   }
 
-  const response = await ai.models.generateContent({
+  const response = await getAI().models.generateContent({
     model: "gemini-3-flash-preview",
     contents: [{ role: "user", parts: [{ text: input }] }],
     config: {
@@ -111,7 +117,7 @@ export async function processInput(input: string, mode: PAOSMode, userName?: str
 }
 
 export async function analyzeMood(text: string): Promise<string> {
-  const response = await ai.models.generateContent({
+  const response = await getAI().models.generateContent({
     model: "gemini-3.1-flash-lite-preview",
     contents: [{ role: "user", parts: [{ text: `Analyze the mood of the following text and return a single emoji and a one-word description: "${text}"` }] }],
     config: {

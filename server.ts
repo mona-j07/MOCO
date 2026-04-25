@@ -18,11 +18,8 @@ const port = 3000;
 let latestNews: any[] = [];
 
 async function startServer() {
-  const vite = await createViteServer({
-    server: { middlewareMode: true },
-    appType: 'spa',
-  });
-
+  const isProd = process.env.NODE_ENV === 'production';
+  
   app.use(express.json());
 
   // API Routes
@@ -34,11 +31,22 @@ async function startServer() {
     });
   });
 
-  // Vite handles everything else
-  app.use(vite.middlewares);
+  if (!isProd) {
+    const vite = await createViteServer({
+      server: { middlewareMode: true },
+      appType: 'spa',
+    });
+    app.use(vite.middlewares);
+  } else {
+    app.use(express.static(path.join(__dirname, 'dist')));
+    app.get('*', (req, res) => {
+      res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+    });
+  }
 
-  app.listen(port, '0.0.0.0', () => {
-    console.log(`moecho server running at http://localhost:${port}`);
+  const finalPort = process.env.PORT || port;
+  app.listen(finalPort, '0.0.0.0', () => {
+    console.log(`moecho server running at http://localhost:${finalPort}`);
   });
 }
 
