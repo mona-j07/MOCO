@@ -1,13 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
 
-let _ai: GoogleGenAI | null = null;
-function getAI() {
-  if (!_ai) {
-    _ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
-  }
-  return _ai;
-}
-
 export type PAOSMode = "AUTHOR" | "DEVELOPER" | "CEO" | "PERSONAL" | "FINANCE" | "ALARM" | "TASKS";
 
 export interface AIResponse {
@@ -88,41 +80,37 @@ You MUST ALWAYS respond in valid JSON format with at least a "content" key.
 Do not return plain text.
 `;
 
-export async function processInput(input: string, mode: PAOSMode, userName?: string): Promise<AIResponse> {
-  if (!process.env.GEMINI_API_KEY) {
-    throw new Error("Missing Gemini API Key");
-  }
+const BACKEND_URL = process.env.NODE_ENV === 'production' 
+  ? 'https://moco-backend.onrender.com' 
+  : 'http://localhost:3001';
 
-  const response = await getAI().models.generateContent({
-    model: "gemini-3-flash-preview",
-    contents: [{ role: "user", parts: [{ text: input }] }],
-    config: {
-      systemInstruction: `${SYSTEM_PROMPT}\nCurrent Mode: ${mode}${userName ? `\nUser Name: ${userName}` : ''}`,
-      temperature: 0.7,
-      responseMimeType: "application/json",
-    },
+export async function processInput(input: string, mode: PAOSMode, userName?: string): Promise<AIResponse> {
+  const response = await fetch(`${BACKEND_URL}/api/moco`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ input, mode, userName })
   });
 
-  try {
-    const data = JSON.parse(response.text);
-    return {
-      content: data.content || response.text,
-      ...data
-    };
-  } catch (e) {
-    return {
-      content: response.text
-    };
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || "Failed to process input");
   }
+
+  return response.json();
 }
 
 export async function analyzeMood(text: string): Promise<string> {
-  const response = await getAI().models.generateContent({
-    model: "gemini-3.1-flash-lite-preview",
-    contents: [{ role: "user", parts: [{ text: `Analyze the mood of the following text and return a single emoji and a one-word description: "${text}"` }] }],
-    config: {
-      temperature: 0.5,
-    },
+  const response = await fetch(`${BACKEND_URL}/api/mood`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text })
   });
-  return response.text;
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || "Failed to analyze mood");
+  }
+
+  const data = await response.json();
+  return data.mood;
 }
