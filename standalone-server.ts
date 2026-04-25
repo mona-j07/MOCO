@@ -3,7 +3,7 @@ dotenv.config();
 
 import express from 'express';
 import cors from 'cors';
-import { processInput, analyzeMood } from './src/lib/gemini';
+import { processInput, analyzeMood } from './src/lib/ai-core';
 
 const app = express();
 const port = Number(process.env.PORT) || 3001;
