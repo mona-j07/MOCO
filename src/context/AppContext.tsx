@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { auth } from '../lib/firebase.ts';
-import { onAuthStateChanged, User } from 'firebase/auth';
+import { auth, db } from '../lib/firebase.ts';
+import { onAuthStateChanged } from 'firebase/auth';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { PAOSMode } from '../lib/gemini.ts';
 
 interface AppContextType {
@@ -28,7 +29,22 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (u) => {
+    const unsubscribe = onAuthStateChanged(auth, async (u) => {
+      if (u) {
+        // Sync user to Firestore
+        const userRef = doc(db, 'users', u.uid);
+        const userSnap = await getDoc(userRef);
+        
+        if (!userSnap.exists()) {
+          await setDoc(userRef, {
+            uid: u.uid,
+            email: u.email,
+            displayName: u.displayName,
+            photoURL: u.photoURL,
+            createdAt: new Date().toISOString(),
+          });
+        }
+      }
       setUser(u);
       setLoading(false);
     });

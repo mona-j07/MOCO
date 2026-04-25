@@ -1,4 +1,4 @@
-import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { signInWithRedirect, GoogleAuthProvider } from 'firebase/auth';
 import { useApp } from '../context/AppContext.tsx';
 import { auth, db } from '../lib/firebase.ts';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
@@ -13,22 +13,7 @@ export default function Auth() {
   const handleLogin = async () => {
     const provider = new GoogleAuthProvider();
     try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-      
-      // Store user in Firestore
-      const userRef = doc(db, 'users', user.uid);
-      const userSnap = await getDoc(userRef);
-      
-      if (!userSnap.exists()) {
-        await setDoc(userRef, {
-          uid: user.uid,
-          email: user.email,
-          displayName: user.displayName,
-          photoURL: user.photoURL,
-          createdAt: new Date().toISOString(),
-        });
-      }
+      await signInWithRedirect(auth, provider);
     } catch (error) {
       console.error("Login failed", error);
     }
